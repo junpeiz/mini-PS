@@ -1,5 +1,6 @@
 #include "design.h"
 #include "ui_design.h"
+#include "equal_dialog.h"
 
 
 design::design(QWidget *parent) :
@@ -294,4 +295,33 @@ void design::on_actionSave_2_triggered()
     img.getDstImg().copyTo(img.getImg());
     namedWindow("img");
     imshow("img",img.getImg());
+}
+
+void design::on_actionEqualization_triggered()
+{
+    if(img.getImg().empty()) {
+        QMessageBox::information(this,"Warning","there is no image",QMessageBox::Ok);
+        return ;
+    }
+    if(img.equalization() == 0){
+        equal_dialog dialog;
+        dialog.setWindowTitle("灰度图转化确认");
+        connect(&dialog, SIGNAL(sendData(bool)), this, SLOT(equal_change_gray(bool)));
+        dialog.exec();
+    }
+
+}
+
+void design::equal_change_gray(bool flag)
+{
+    if(flag) img.change_to_gray();
+}
+
+void design::on_actionBeauty_triggered()
+{
+    if(img.getImg().empty()) {
+        QMessageBox::information(this,"Warning","there is no image",QMessageBox::Ok);
+        return ;
+    }
+    img.global_beautify();
 }
