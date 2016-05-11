@@ -33,6 +33,7 @@ public:
     explicit design(QWidget *parent = 0);
     ~design();
 
+
 private slots:
     void on_actionSave_triggered();
     void on_actionOpen_triggered();
@@ -62,6 +63,12 @@ private slots:
     void on_actionAddBoard_triggered();
 
     void on_actionSave_2_triggered();
+
+    void on_actionEqualization_triggered();
+
+    void equal_change_gray(bool flag);
+
+    void on_actionBeauty_triggered();
 
 private:
     Ui::design *ui;

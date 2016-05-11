@@ -4,6 +4,8 @@
 #include<opencv2/highgui/highgui.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
 #include<opencv2/objdetect/objdetect.hpp>
+#include<opencv2/opencv_modules.hpp>
+#include<opencv2/opencv.hpp>
 #include<QString>
 #include<QMessageBox>
 #include<vector>
@@ -35,6 +37,11 @@ public:
     void gain(Mat Temperature,float &u,float&v,float lamda=0.05);
     void correctionImage(const Mat image,Mat &result,const float u ,const float v);
     void WhiteBalance();
+
+    void change_to_gray();
+    int equalization();
+    void global_beautify();
+
 private:
     Mat img;
     Mat storeImg;

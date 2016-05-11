@@ -1,5 +1,6 @@
 #include "image.h"
 
+
 Image::Image()
 {
 }
@@ -288,6 +289,90 @@ void Image::WhiteBalance(){
     waitKey();
 }
 
+int Image::equalization()
+{
+    if(img.empty()) return -1;
+    //由于直方图均衡化只能用于灰度图，所以如果不是灰度图要特别处理
+    if(img.channels()!=1) return 0;
+    equalizeHist(img, dstImg);
+    return 1;
+}
 
+void Image::change_to_gray()
+{
+    Mat temp;
+    cvtColor(img, temp, CV_BGR2GRAY);
+    equalizeHist(temp, dstImg);
+    namedWindow("After change to gray");
+    imshow("After change to gray", temp);
+    namedWindow("After equalization");
+    imshow("After equalization", dstImg);
+}
 
+/*****************************************磨皮部分分割线************************************************/
+//实现相关函数
+int FMax(const int X, const int Y)
+{
+    return (X < Y ? Y : X);
+}
 
+int FMin(const int X, const int Y)
+{
+    return (Y < X ? Y : X);
+}
+
+void BalanceColor(Mat& bitmap,int value)
+{
+    //定义转换数组
+    double  highlights_add[256], highlights_sub[256];
+    double  midtones_add[256], midtones_sub[256];
+    double  shadows_add[256], shadows_sub[256];
+    //初始化转换数组
+    for (int i = 0; i < 256; i++)
+    {
+        highlights_add[i] = shadows_sub[255 - i] = (1.075 - 1 / ((double) i / 16.0 + 1));
+        midtones_add[i] = midtones_sub[i] = 0.667 * (1 - (((double) i - 127.0) / 127.0)*(((double) i - 127.0) / 127.0));
+        shadows_add[i] = highlights_sub[i] = 0.667 * (1 - (((double) i - 127.0) / 127.0)*(((double) i - 127.0) / 127.0));
+    }
+    int red, green, blue;
+    unsigned char r_lookup[256],g_lookup[256],b_lookup[256];
+    for (int i = 0; i < 256; i++)
+    {
+        red = i;
+        green = i;
+        blue = i;
+
+        red += (int)( 0.0 * shadows_sub[red] + value * midtones_add[red] + 0.0 * highlights_sub[red]);
+        red = FMax(0,FMin(0xFF,red));
+
+        green += (int)( 0.0 * shadows_sub[green] + value * midtones_add[green] + 0.0 * highlights_sub[green]);
+        green = FMax(0,FMin(0xFF,green));
+
+        blue += (int)( 0.0 * shadows_sub[blue] + value * midtones_add[blue] + 0.0 * highlights_sub[blue]);
+        blue = FMax(0,FMin(0xFF,blue));
+
+        r_lookup[i] = (unsigned char)red;
+        g_lookup[i] = (unsigned char)green;
+        b_lookup[i] = (unsigned char)blue;
+    }
+    for (int row = 0; row < bitmap.rows; row++)
+        for (int col = 0; col < bitmap.cols; col++)
+        {
+            bitmap.at<Vec3b>(row, col)[0] = b_lookup[bitmap.at<Vec3b>(row, col)[0]];
+            bitmap.at<Vec3b>(row, col)[1] = g_lookup[bitmap.at<Vec3b>(row, col)[1]];
+            bitmap.at<Vec3b>(row, col)[2] = r_lookup[bitmap.at<Vec3b>(row, col)[2]];
+        }
+}
+
+void Image::global_beautify()
+{
+    int KERNEL_SIZE = 15;
+    for (int i = 1; i < KERNEL_SIZE; i = i + 2)
+    {
+        bilateralFilter(img,dstImg,i,i*2,i/2);
+    }
+    BalanceColor(dstImg, 60);
+    namedWindow("Beautify");
+    imshow("Beautify",dstImg);
+}
+/**********************************磨皮部分结束分割线*****************************************/
