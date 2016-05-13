@@ -24,11 +24,23 @@ HEADERS  += \
 
 CONFIG += c++11
 
-INCLUDEPATH += D:/opencv/MinGW/install/include
-INCLUDEPATH += D:/opencv/MinGW/install/include/opencv
-INCLUDEPATH += D:/opencv/MinGW/install/include/opencv2
+INCLUDEPATH+=C:/qtopencv_out/install/include
+INCLUDEPATH+=C:/qtopencv_out/install/include/opencv
+INCLUDEPATH+=C:/qtopencv_out/install/include/opencv2
 
-LIBS += "D:/opencv/MinGW/bin/*.dll"
+
+LIBS+=C:\qtopencv_out\lib\libopencv_calib3d2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_contrib2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_core2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_features2d2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_flann2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_gpu2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_highgui2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_imgproc2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_legacy2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_ml2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_objdetect2412d.dll.a\
+        C:\qtopencv_out\lib\libopencv_video2412d.dll.a
 
 FORMS += \
     design.ui \

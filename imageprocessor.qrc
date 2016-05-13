@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/open">
+        <file>images/open.png</file>
+    </qresource>
+    <qresource prefix="/save">
+        <file>images/save.png</file>
+    </qresource>
+    <qresource prefix="/board">
+        <file>images/bg3.png</file>
+    </qresource>
+    <qresource prefix="/testImg">
+        <file>images/img.jpg</file>
+    </qresource>
+    <qresource prefix="/testicon">
+        <file>images/icon.jpg</file>
+    </qresource>
+</RCC>
