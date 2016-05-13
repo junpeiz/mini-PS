@@ -70,6 +70,12 @@ private slots:
 
     void on_actionBeauty_triggered();
 
+    void on_actionCutout_triggered();
+
+    void on_actionDetectEdge_triggered();
+
+    void on_actionRedo_triggered();
+
 private:
     Ui::design *ui;
     Image img;
