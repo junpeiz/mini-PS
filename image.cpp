@@ -27,6 +27,11 @@ Mat & Image::getDstImg()
     return dstImg;
 }
 
+vector<Mat> & Image::getStoreImg()
+{
+    return storeImg;
+}
+
 bool Image::saveImg(const QString &fileName) const
 {
     if(img.empty()) return false;
