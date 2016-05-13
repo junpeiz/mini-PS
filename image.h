@@ -10,6 +10,9 @@
 #include<QMessageBox>
 #include<vector>
 #include<time.h>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/nonfree/nonfree.hpp>
+#include <opencv2/legacy/legacy.hpp>
 
 using namespace cv;
 using namespace std;
@@ -20,8 +23,9 @@ public:
     Image();
 
     bool setImg(const QString & fileName);
-    Mat & getImg() ;
-    Mat & getDstImg() ;
+    Mat & getImg();
+    Mat & getDstImg();
+    vector<Mat> &getStoreImg();
 
     bool saveImg(const QString &filename) const;
 
@@ -38,6 +42,7 @@ public:
     void gain(Mat Temperature,float &u,float&v,float lamda=0.05);
     void correctionImage(const Mat image,Mat &result,const float u ,const float v);
     void WhiteBalance();
+    int imageMatch(Mat& img2);
 
     void change_to_gray();
     int equalization();

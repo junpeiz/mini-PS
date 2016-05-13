@@ -9,6 +9,8 @@ design::design(QWidget *parent) :
 {
     alpha=80;
     beta=80;
+    IsErasing = 0;
+    IsAddingIcon = 0;
     ui->setupUi(this);
 }
 
@@ -38,7 +40,6 @@ void design::on_actionOpen_triggered()
         img.getImg().copyTo(img.getDstImg());
         showImage(1);
     }
-
     else
         QMessageBox::information(this,"Warning","Please choose a right image",QMessageBox::Ok);
 }
@@ -62,7 +63,7 @@ void design::showImage()
     cvtColor(img.getImg(),rgb,CV_BGR2RGB);
     ui->imageLabel->setPixmap(QPixmap::fromImage(QImage(rgb.data,rgb.cols,rgb.rows,rgb.cols*rgb.channels(),QImage::Format_RGB888)));
     ui->imageLabel->resize(ui->imageLabel->pixmap()->size());
-    ui->scrollAreaWidgetContents->setFixedSize(1000,1000);
+    ui->scrollAreaWidgetContents->setFixedSize(ui->imageLabel->size());
 }
 void design::showImage(int flag){   //flag==1  Img   else   dstImg
     if(flag==1){
@@ -71,7 +72,7 @@ void design::showImage(int flag){   //flag==1  Img   else   dstImg
         cvtColor(img.getImg(),rgb,CV_BGR2RGB);
         ui->imageLabel->setPixmap(QPixmap::fromImage(QImage(rgb.data,rgb.cols,rgb.rows,rgb.cols*rgb.channels(),QImage::Format_RGB888)));
         ui->imageLabel->resize(ui->imageLabel->pixmap()->size());
-        ui->scrollAreaWidgetContents->setFixedSize(1000,1000);
+        ui->scrollAreaWidgetContents->setFixedSize(ui->imageLabel->size());
     }
     else {
         if(img.empty()) return;
@@ -79,8 +80,18 @@ void design::showImage(int flag){   //flag==1  Img   else   dstImg
         cvtColor(img.getDstImg(),rgb,CV_BGR2RGB);
         ui->imageLabel->setPixmap(QPixmap::fromImage(QImage(rgb.data,rgb.cols,rgb.rows,rgb.cols*rgb.channels(),QImage::Format_RGB888)));
         ui->imageLabel->resize(ui->imageLabel->pixmap()->size());
-        ui->scrollAreaWidgetContents->setFixedSize(1000,1000);
+        ui->scrollAreaWidgetContents->setFixedSize(ui->imageLabel->size());
     }
+}
+
+void design::showImage(const Mat &image)
+{
+    if(image.empty()) return;
+    Mat rgb;
+    cvtColor(image,rgb,CV_BGR2RGB);
+    ui->imageLabel->setPixmap(QPixmap::fromImage(QImage(rgb.data,rgb.cols,rgb.rows,rgb.cols*rgb.channels(),QImage::Format_RGB888)));
+    ui->imageLabel->resize(ui->imageLabel->pixmap()->size());
+    ui->scrollAreaWidgetContents->setFixedSize(ui->imageLabel->size());
 }
 
 void design::on_actionAddNoise_triggered()
@@ -103,7 +114,8 @@ void design::on_actionEraser_triggered()
         QMessageBox::information(this,"Warning","there is no image",QMessageBox::Ok);
         return ;
     }
-    img.erase();
+    img.getImg().copyTo(img.getDstImg());
+    IsErasing = 1;
 }
 
 void design::on_actionExit_triggered()
@@ -166,32 +178,50 @@ void design::on_actionWhiteBalance_triggered()
 }
 void design::mouseMoveEvent(QMouseEvent* event)
 {
-    if(SaveFlag==1) {
-        if(!img.getDstImg().empty()){
-            img.getDstImg().copyTo(img.getImg());
-        }
-        return ;
-    }
     QPoint m = event->pos();
-    x=m.x();
-    y=m.y();
-    img.getImg().copyTo(img.getDstImg());
-    cout<<"x and y:"<<x<<" "<<y<<endl;
-    if(!img.getDstImg().empty()&&x>=0&&y>=0){
-        if((y+logo.rows<img.getImg().rows))
-            if(x+logo.cols<img.getImg().cols)
-                imageROI = img.getDstImg()(cv::Rect(x,y,logo.cols,logo.rows));
+    x=m.x()-10;
+    y=m.y()-169;
+    if(IsAddingIcon)
+    {
+        img.getImg().copyTo(img.getDstImg());
+        cout<<"x and y:"<<x<<" "<<y<<endl;
+        if(!img.getDstImg().empty()&&x-logo.cols/2>=0&&y-logo.rows/2>=0){
+            if((y+logo.rows/2<img.getImg().rows))
+                if(x+logo.cols/2<img.getImg().cols)
+                    imageROI = img.getDstImg()(cv::Rect(Point(x-logo.cols/2,y-logo.rows/2),Point(x+logo.cols/2,y+logo.rows/2)));
+        }
+        if(!imageROI.empty()){
+            logo.copyTo(imageROI,mask);
+        }
+        showImage(0);
     }
-    if(!imageROI.empty()){
-        logo.copyTo(imageROI,mask);
+    else if(IsErasing)
+    {
+        Mat temp = Mat::zeros(img.getDstImg().size(),img.getDstImg().type());
+        if (x - 20 < 0 || y - 20 < 0) return;
+        if (x + 20 > img.getDstImg().cols || y + 20 > img.getDstImg().rows) return;
+        Rect tmp = Rect(Point(x - 20, y - 20), Point(x + 20, y + 20));
+        img.getDstImg().copyTo(temp);
+        rectangle(temp, tmp, Scalar(0, 0, 0), 1);
+        Mat roi = img.getDstImg()(tmp);
+        roi.setTo(Scalar(255, 255, 255));
+        showImage(temp);
     }
+    else
+        showImage(0);
     //    cv::namedWindow("result");
     //    cv::imshow("result",img.getImg());
+
+}
+
+void design::mouseReleaseEvent(QMouseEvent *evnet)
+{
     showImage(0);
 }
 
 void design::on_actionIconAdd_triggered()
 {
+    IsAddingIcon = 1;
     if(img.getImg().empty()) {
         QMessageBox::information(this,"Warning","there is no image",QMessageBox::Ok);
         return ;
@@ -201,7 +231,6 @@ void design::on_actionIconAdd_triggered()
         logo = imread(fileName.toStdString());
         mask = imread(fileName.toStdString(),0);
     }
-    SaveFlag=0;
 }
 
 void design::on_actionIconSave_triggered()
@@ -210,7 +239,16 @@ void design::on_actionIconSave_triggered()
         QMessageBox::information(this,"Warning","there is no image",QMessageBox::Ok);
         return ;
     }
-    SaveFlag=1;
+    if(!img.getDstImg().empty()){
+        img.getDstImg().copyTo(img.getImg());
+    }
+    IsAddingIcon = 0;
+}
+
+void design::on_actionIconCancel_triggered()
+{
+    IsAddingIcon = 0;
+    showImage(1);
 }
 
 void design::on_actionAddBoard_triggered()
@@ -294,8 +332,14 @@ void design::on_actionSave_2_triggered()
         QMessageBox::information(this,"Warning","there is no image",QMessageBox::Ok);
         return ;
     }
-    SaveFlag=1;
+    IsAddingIcon = 0;
+    IsErasing = 0;
+    if(img.getDstImg().empty()) return;
     img.getDstImg().copyTo(img.getImg());
+    Mat temp;
+    img.getDstImg().copyTo(temp);
+    img.getStoreImg().push_back(temp);
+    showImage();
     namedWindow("img");
     imshow("img",img.getImg());
 }
@@ -312,7 +356,6 @@ void design::on_actionEqualization_triggered()
         connect(&dialog, SIGNAL(sendData(bool)), this, SLOT(equal_change_gray(bool)));
         dialog.exec();
     }
-
 }
 
 void design::equal_change_gray(bool flag)
@@ -352,5 +395,29 @@ void design::on_actionDetectEdge_triggered()
 void design::on_actionRedo_triggered()
 {
     img.redo();
+    img.getImg().copyTo(img.getDstImg());
     showImage();
+}
+
+void design::on_actionStitch_triggered()
+{
+    Stitch* stitch = new Stitch;
+    stitch->setWindowTitle("Stitch");
+    stitch->show();
+}
+
+void design::on_actionImageMatch_triggered()
+{
+    Mat img2;
+    QString fileName = QFileDialog::getOpenFileName(this,"Open Image",".","Image Files (*.png *.jpg *.bmp)");
+    img2=imread(fileName.toStdString());
+    if(img2.empty())
+    {
+        QMessageBox::information(this,"Warning","You don't choose any image",QMessageBox::Ok);
+        return;
+    }
+    if(!img.imageMatch(img2)){
+        QMessageBox::information(this,"Warning","Fail to match the image",QMessageBox::Ok);
+        return ;
+    }
 }
