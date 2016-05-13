@@ -76,6 +76,8 @@ private slots:
 
     void on_actionRedo_triggered();
 
+    void on_actionIconCancel_triggered();
+
 private:
     Ui::design *ui;
     Image img;
@@ -86,12 +88,15 @@ private:
 
     Mat logo,mask,imageROI;
     double x,y;
-    int SaveFlag;
+    int IsAddingIcon;
+    int IsErasing;
     void mouseMoveEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent * evnet);
     void overlayImage(const cv::Mat &background, const cv::Mat &foreground,
       cv::Mat &output, cv::Point2i location);
     void showImage();
     void showImage(int flag);
+    void showImage(const Mat & image);
 };
 
 #endif // DESIGN_H

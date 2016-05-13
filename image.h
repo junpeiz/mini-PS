@@ -20,8 +20,9 @@ public:
     Image();
 
     bool setImg(const QString & fileName);
-    Mat & getImg() ;
-    Mat & getDstImg() ;
+    Mat & getImg();
+    Mat & getDstImg();
+    vector<Mat> &getStoreImg();
 
     bool saveImg(const QString &filename) const;
 
