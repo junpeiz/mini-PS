@@ -20,10 +20,33 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QLabel" name="imageLabel">
-       <property name="text">
-        <string/>
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="widgetResizable">
+        <bool>true</bool>
        </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>780</width>
+          <height>386</height>
+         </rect>
+        </property>
+        <widget class="QLabel" name="imageLabel">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>782</width>
+           <height>57</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -175,6 +198,9 @@
     <addaction name="menuAddLittleIcon"/>
     <addaction name="menuAddBoard"/>
     <addaction name="actionBeauty"/>
+    <addaction name="actionCutout"/>
+    <addaction name="actionDetectEdge"/>
+    <addaction name="actionRedo"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuProcess"/>
@@ -211,6 +237,9 @@
    <addaction name="actionSave_2"/>
    <addaction name="actionEqualization"/>
    <addaction name="actionBeauty"/>
+   <addaction name="actionCutout"/>
+   <addaction name="actionDetectEdge"/>
+   <addaction name="actionRedo"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -289,6 +318,21 @@
   <action name="actionBeauty">
    <property name="text">
     <string>Beauty</string>
+   </property>
+  </action>
+  <action name="actionCutout">
+   <property name="text">
+    <string>cutout</string>
+   </property>
+  </action>
+  <action name="actionDetectEdge">
+   <property name="text">
+    <string>DetectEdge</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>redo</string>
    </property>
   </action>
  </widget>

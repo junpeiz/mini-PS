@@ -1,5 +1,5 @@
 #include "image.h"
-
+#include <vector>
 
 Image::Image()
 {
@@ -10,6 +10,9 @@ bool Image::setImg(const QString &fileName)
     if(!fileName.isEmpty())
     {
         img = imread(fileName.toStdString());
+        Mat temp;
+        img.copyTo(temp);
+        storeImg.push_back(temp);
         return true;
     }
     return false;
@@ -95,6 +98,9 @@ bool Image::addNoise()
             p[randIndex] = (uchar)val;
         }
     }
+    Mat temp;
+    dstImg.copyTo(temp);
+    storeImg.push_back(temp);
     return true;
 }
 
@@ -102,6 +108,9 @@ bool Image::denoise()
 {
     if(dstImg.empty()) return false;
     medianBlur(dstImg,dstImg,3);
+    Mat temp;
+    dstImg.copyTo(temp);
+    storeImg.push_back(temp);
     return true;
 }
 
@@ -131,12 +140,23 @@ bool Image::erase()
     namedWindow("image");
     imshow("image",img);
     setMouseCallback("image",eraser,&img);
+    Mat temp;
+    img.copyTo(temp);
+    storeImg.push_back(temp);
     return true;
 }
 
 bool Image::empty()
 {
     return img.empty();
+}
+
+void Image::redo()
+{
+    if(storeImg.size() == 0 || storeImg.size() == 1) return;
+    Mat temp = storeImg.at(storeImg.size()-2);
+    temp.copyTo(img);
+    storeImg.pop_back();
 }
 
 //private function
@@ -165,6 +185,9 @@ bool Image::changeAlphaAndBeta(double alpha,double beta)
 {
     if(img.empty()) return false;
     img.convertTo(dstImg,-1,alpha*0.01,beta);
+    Mat temp;
+    img.copyTo(temp);
+    storeImg.push_back(temp);
     return true;
 }
 void Image::myBGR2YUV(const Mat image,Mat &result)
@@ -281,6 +304,9 @@ void Image::WhiteBalance(){
 
     }
     if(!index) img.copyTo(dstImg);//拷贝
+    Mat temp;
+    img.copyTo(temp);
+    storeImg.push_back(temp);
     //cout<<"C="<<C<<" Cb="<<Cb_T<<" Cr="<<Cr_T<<endl;
 
     //cout<<"图像加载成功"<<result.type()<<endl;
@@ -307,6 +333,9 @@ void Image::change_to_gray()
     imshow("After change to gray", temp);
     namedWindow("After equalization");
     imshow("After equalization", dstImg);
+    Mat tempImg;
+    dstImg.copyTo(tempImg);
+    storeImg.push_back(tempImg);
 }
 
 /*****************************************磨皮部分分割线************************************************/
@@ -372,7 +401,81 @@ void Image::global_beautify()
         bilateralFilter(img,dstImg,i,i*2,i/2);
     }
     BalanceColor(dstImg, 60);
+    Mat temp;
+    dstImg.copyTo(temp);
+    storeImg.push_back(temp);
     namedWindow("Beautify");
     imshow("Beautify",dstImg);
 }
 /**********************************磨皮部分结束分割线*****************************************/
+
+/**********************************抠图部分开始分割线*****************************************/
+Point cut_out_p0 = Point(-1,-1);
+bool select_flag = false;
+Mat cut_out_img, cut_out_showImg, cut_out_imgmask;
+
+void onMouse(int event, int x, int y, int, void*)
+{
+    if(event==CV_EVENT_LBUTTONDOWN)
+    {
+        cut_out_p0.x = x;
+        cut_out_p0.y = y;
+        select_flag = true;
+    }
+    else if(select_flag &&event == CV_EVENT_MOUSEMOVE)
+    {
+        Point pt = Point(x,y);
+        line(cut_out_showImg,cut_out_p0,pt,Scalar(0,255,0),2,8,0);
+        line(cut_out_imgmask,cut_out_p0,pt,Scalar::all(0),2,8,0);
+        cut_out_p0 = pt;
+        imshow("showImg",cut_out_showImg);
+    }
+    else if(select_flag && event == CV_EVENT_LBUTTONUP)
+    {
+        select_flag = false;
+        cut_out_p0 = Point(-1,-1);
+    }
+    else if(event == CV_EVENT_RBUTTONUP)//右击显示抠出的图
+    {
+        Mat dst;//若希望将圈选的结果相加，定义在外头
+        floodFill(cut_out_imgmask,Point(x,y),Scalar(0));//point种子点所在的连通域被填充
+        cut_out_img.copyTo(dst,cut_out_imgmask);//mask中所有不为零的点被dst对应的值填充
+        imshow("dst",dst);
+        cut_out_img.copyTo(cut_out_showImg);
+        cut_out_imgmask.setTo(Scalar(255));//重新取值
+    }
+
+}
+//框图超过画面时会报错
+void Image::cut_out()
+{
+    img.copyTo(cut_out_img);
+    img.copyTo(cut_out_showImg);
+    cut_out_imgmask.create(img.size(),CV_8UC1);
+    cut_out_imgmask.setTo(Scalar(255));
+    namedWindow("showImg");
+    imshow("showImg",cut_out_showImg);
+    setMouseCallback("showImg",onMouse,0);
+}
+/**********************************抠图部分结束分割线*****************************************/
+
+/**********************************边缘检测开始分割线*****************************************/
+Mat detect_edge_temp, detect_edge_dist;
+
+void on_trackbar(int threshold, void *)
+{
+    //canny边缘检测
+    Canny(detect_edge_temp, detect_edge_dist, threshold, threshold * 3);
+    imshow("The edge detected", detect_edge_dist);
+}
+
+void Image::detect_edge()
+{
+    cvtColor(img, detect_edge_temp, CV_BGR2GRAY);
+    namedWindow("After change to gray");
+    imshow("After change to gray", detect_edge_temp);
+    int nThresholdEdge = 100;
+    namedWindow("The edge detected");
+    createTrackbar("Threshold", "The edge detected", &nThresholdEdge, 255, on_trackbar);
+}
+/**********************************边缘检测结束分割线*****************************************/
