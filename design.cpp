@@ -62,6 +62,7 @@ void design::showImage()
     cvtColor(img.getImg(),rgb,CV_BGR2RGB);
     ui->imageLabel->setPixmap(QPixmap::fromImage(QImage(rgb.data,rgb.cols,rgb.rows,rgb.cols*rgb.channels(),QImage::Format_RGB888)));
     ui->imageLabel->resize(ui->imageLabel->pixmap()->size());
+    ui->scrollAreaWidgetContents->setFixedSize(1000,1000);
 }
 void design::showImage(int flag){   //flag==1  Img   else   dstImg
     if(flag==1){
@@ -70,6 +71,7 @@ void design::showImage(int flag){   //flag==1  Img   else   dstImg
         cvtColor(img.getImg(),rgb,CV_BGR2RGB);
         ui->imageLabel->setPixmap(QPixmap::fromImage(QImage(rgb.data,rgb.cols,rgb.rows,rgb.cols*rgb.channels(),QImage::Format_RGB888)));
         ui->imageLabel->resize(ui->imageLabel->pixmap()->size());
+        ui->scrollAreaWidgetContents->setFixedSize(1000,1000);
     }
     else {
         if(img.empty()) return;
@@ -77,6 +79,7 @@ void design::showImage(int flag){   //flag==1  Img   else   dstImg
         cvtColor(img.getDstImg(),rgb,CV_BGR2RGB);
         ui->imageLabel->setPixmap(QPixmap::fromImage(QImage(rgb.data,rgb.cols,rgb.rows,rgb.cols*rgb.channels(),QImage::Format_RGB888)));
         ui->imageLabel->resize(ui->imageLabel->pixmap()->size());
+        ui->scrollAreaWidgetContents->setFixedSize(1000,1000);
     }
 }
 
@@ -324,4 +327,30 @@ void design::on_actionBeauty_triggered()
         return ;
     }
     img.global_beautify();
+}
+
+
+void design::on_actionCutout_triggered()
+{
+    if(img.getImg().empty()) {
+        QMessageBox::information(this,"Warning","there is no image",QMessageBox::Ok);
+        return ;
+    }
+    img.cut_out();
+}
+
+
+void design::on_actionDetectEdge_triggered()
+{
+    if(img.getImg().empty()) {
+        QMessageBox::information(this,"Warning","there is no image",QMessageBox::Ok);
+        return ;
+    }
+    img.detect_edge();
+}
+
+void design::on_actionRedo_triggered()
+{
+    img.redo();
+    showImage();
 }

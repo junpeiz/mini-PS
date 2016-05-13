@@ -31,6 +31,7 @@ public:
     friend void eraser(int event, int x, int y, int flags, void * param);
     bool erase();
     bool empty();
+    void redo();
     bool changeAlphaAndBeta(double alpha,double beta);
     void myBGR2YUV(const Mat image,Mat &result);
     void CountTemperature(const Mat result,Mat &Temperature ,const short phi=180);
@@ -41,10 +42,12 @@ public:
     void change_to_gray();
     int equalization();
     void global_beautify();
+    void cut_out();
+    void detect_edge();
 
 private:
     Mat img;
-    Mat storeImg;
+    vector<Mat> storeImg;
     Mat dstImg;
 
     double generateGaussianNoise();
