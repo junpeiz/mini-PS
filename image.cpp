@@ -161,7 +161,24 @@ void Image::redo()
     if(storeImg.size() == 0 || storeImg.size() == 1) return;
     Mat temp = storeImg.at(storeImg.size()-2);
     temp.copyTo(img);
+    temp.copyTo(dstImg);
     storeImg.pop_back();
+}
+
+void Image::track()
+{
+    VideoCapture cap(0);
+    if(!cap.isOpened()) return;
+    Mat frame;
+    CascadeClassifier cascade;
+    bool stop = false;
+    cascade.load("haarcascade_frontalface_alt.xml");
+    while(!stop)
+    {
+        cap >> frame;
+        detectAndDraw(frame,cascade,2,0);
+        if(waitKey(30) >= 0) stop = true;
+    }
 }
 
 //private function
@@ -186,6 +203,46 @@ double Image::generateGaussianNoise()
 
     return sqrt(rand1) * cos(rand2);
 }
+
+void Image::detectAndDraw(Mat frame, CascadeClassifier cascade, double scale, bool tryflip)
+{
+    vector<Rect> faces;
+    Mat grey;
+    cvtColor(frame,grey,CV_RGB2GRAY);
+    Mat smallImg(cvRound(frame.rows/scale),cvRound(frame.cols/scale),CV_8UC1);
+    cv::resize(grey,smallImg,smallImg.size());
+    equalizeHist(smallImg,smallImg);
+
+    cascade.detectMultiScale(smallImg,faces,1.1,2,0);
+    if(tryflip)
+    {
+        vector<Rect> faces2;
+        flip(smallImg,smallImg,1);
+        cascade.detectMultiScale(smallImg,faces2,1.1,2,0,Size(30,30));
+        for(vector<Rect>::iterator itr = faces2.begin(); itr != faces2.end(); itr++)
+            faces.push_back(Rect(smallImg.cols - itr->x - itr->width, itr->y, itr->width, itr->height));
+    }
+    for(vector<Rect>::const_iterator itr = faces.begin(); itr != faces.end(); itr++)
+    {
+        Point center;
+        Scalar color = CV_RGB(255,255,0);
+        int radius;
+
+        double ratio = (double)itr->width/itr->height;
+        if(0.75 < ratio && ratio < 1.3)
+        {
+            center.x = cvRound((itr->x + itr->width * 0.5) * scale);
+            center.y = cvRound((itr->y + itr->height * 0.5) * scale);
+            radius = cvRound((itr->width + itr->height) * 0.25 * scale);
+            circle(frame,center,radius,color);
+        }
+        else
+            rectangle(frame,cvPoint(cvRound(itr->x * scale),cvRound(itr->y * scale)),cvPoint(cvRound((itr->x + itr->width - 1) * scale), cvRound(itr->y + itr->height - 1) * scale),color);
+
+    }
+    cv::imshow("any key to exit", frame );
+}
+
 bool Image::changeAlphaAndBeta(double alpha,double beta)
 {
     if(img.empty()) return false;
@@ -318,6 +375,67 @@ void Image::WhiteBalance(){
     namedWindow("WhiteBalance");
     imshow("WhiteBalance",dstImg);
     waitKey();
+}
+
+
+int Image::imageMatch(Mat& img2){
+    if(img.empty()) return 0;
+    // vector of keyPoints
+    vector<KeyPoint> keys1;
+    vector<KeyPoint> keys2;
+    // construction of the fast feature detector object
+//    FastFeatureDetector fast1(40);  // 检测的阈值为40
+//    FastFeatureDetector fast2(40);
+      SurfFeatureDetector fast1(400);
+      SurfFeatureDetector fast2(400);
+//    MserFeatureDetector fast1(40);
+//    MserFeatureDetector fast2(40);
+//    StarFeatureDetector fast2(40);
+//    StarFeatureDetector fast1(40);
+//    SiftFeatureDetector fast1(40);
+//    SiftFeatureDetector fast2(40);
+    // feature point detection
+    fast1.detect(img,keys1);
+    double t;
+    t=getTickCount();
+    fast2.detect(img2,keys2);
+    t=getTickCount()-t;
+    t=t*1000/getTickFrequency();
+    cout<<"KeyPoint Size:"<<keys2.size()<<endl;
+    cout<<"extract time:"<<t<<"ms"<<endl;
+    drawKeypoints(img, keys1, img, Scalar::all(-1), DrawMatchesFlags::DRAW_OVER_OUTIMG);
+    drawKeypoints(img2, keys2, img2, Scalar::all(-1), DrawMatchesFlags::DRAW_OVER_OUTIMG);
+   // imshow("FAST feature1", img);
+   // imshow("FAST feature2", img2);
+   // cvWaitKey(0);
+    t=getTickCount();
+
+    SurfDescriptorExtractor Extractor;//Run:BruteForceMatcher< L2<float> > matcher
+    //ORB Extractor;//Not Run;
+    //BriefDescriptorExtractor Extractor;//RUN:BruteForceMatcher< Hamming > matcher
+    //BriefDescriptorExtractor Extractor;
+    Mat descriptors1, descriptors2;
+    Extractor.compute(img,keys1,descriptors1);
+    Extractor.compute(img2,keys2,descriptors2);
+
+    //BruteForceMatcher< Hamming > matcher;
+    BruteForceMatcher < L2 <float> > matcher;
+   // FlannBasedMatcher matcher;
+    vector< DMatch > matches;
+
+     Mat img_matches;
+
+     matcher.match( descriptors1, descriptors2, matches );
+     t=getTickCount()-t;
+     t=t*1000/getTickFrequency();
+     cout<<"match time:"<<t<<"ms"<<endl;
+     std::nth_element(matches.begin(),matches.begin()+24,matches.end());
+     matches.erase(matches.begin()+25,matches.end());
+     drawMatches( img, keys1, img2, keys2, matches, img_matches,
+             Scalar::all(-1), Scalar::all(-1),vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+
+     imshow("draw",img_matches);
+     waitKey(0);
 }
 
 int Image::equalization()

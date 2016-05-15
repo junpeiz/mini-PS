@@ -10,6 +10,9 @@
 #include<QMessageBox>
 #include<vector>
 #include<time.h>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/nonfree/nonfree.hpp>
+#include <opencv2/legacy/legacy.hpp>
 
 using namespace cv;
 using namespace std;
@@ -33,12 +36,14 @@ public:
     bool erase();
     bool empty();
     void redo();
+    void track();
     bool changeAlphaAndBeta(double alpha,double beta);
     void myBGR2YUV(const Mat image,Mat &result);
     void CountTemperature(const Mat result,Mat &Temperature ,const short phi=180);
     void gain(Mat Temperature,float &u,float&v,float lamda=0.05);
     void correctionImage(const Mat image,Mat &result,const float u ,const float v);
     void WhiteBalance();
+    int imageMatch(Mat& img2);
 
     void change_to_gray();
     int equalization();
@@ -52,6 +57,7 @@ private:
     Mat dstImg;
 
     double generateGaussianNoise();
+    void detectAndDraw(Mat frame, CascadeClassifier cascade, double scale, bool tryflip);
 };
 
 

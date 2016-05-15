@@ -20,6 +20,8 @@
 #include <vector>
 #include <time.h>
 #include"image.h"
+#include"stitch.h"
+#include"facetracking.h"
 
 namespace Ui {
 class design;
@@ -77,6 +79,14 @@ private slots:
     void on_actionRedo_triggered();
 
     void on_actionIconCancel_triggered();
+
+    void on_actionStitch_triggered();
+
+    void on_actionImageMatch_triggered();
+
+    void on_actionFaceTracking_triggered();
+
+    void faceTrack(bool flag);
 
 private:
     Ui::design *ui;

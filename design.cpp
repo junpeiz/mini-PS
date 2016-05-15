@@ -40,7 +40,6 @@ void design::on_actionOpen_triggered()
         img.getImg().copyTo(img.getDstImg());
         showImage(1);
     }
-
     else
         QMessageBox::information(this,"Warning","Please choose a right image",QMessageBox::Ok);
 }
@@ -357,7 +356,6 @@ void design::on_actionEqualization_triggered()
         connect(&dialog, SIGNAL(sendData(bool)), this, SLOT(equal_change_gray(bool)));
         dialog.exec();
     }
-
 }
 
 void design::equal_change_gray(bool flag)
@@ -397,5 +395,45 @@ void design::on_actionDetectEdge_triggered()
 void design::on_actionRedo_triggered()
 {
     img.redo();
+    img.getImg().copyTo(img.getDstImg());
     showImage();
+}
+
+void design::on_actionStitch_triggered()
+{
+    Stitch* stitch = new Stitch;
+    stitch->setWindowTitle("Stitch");
+    stitch->show();
+}
+
+void design::on_actionImageMatch_triggered()
+{
+    Mat img2;
+    QString fileName = QFileDialog::getOpenFileName(this,"Open Image",".","Image Files (*.png *.jpg *.bmp)");
+    img2=imread(fileName.toStdString());
+    if(img2.empty())
+    {
+        QMessageBox::information(this,"Warning","You don't choose any image",QMessageBox::Ok);
+        return;
+    }
+    if(!img.imageMatch(img2)){
+        QMessageBox::information(this,"Warning","Fail to match the image",QMessageBox::Ok);
+        return ;
+    }
+}
+
+void design::on_actionFaceTracking_triggered()
+{
+    faceTracking dialog;
+    dialog.setWindowTitle("track or not");
+    connect(&dialog,SIGNAL(sendData(bool)),this,SLOT(faceTrack(bool)));
+    dialog.exec();
+}
+
+void design::faceTrack(bool flag)
+{
+    if(flag)
+    {
+        img.track();
+    }
 }
