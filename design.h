@@ -88,6 +88,14 @@ private slots:
 
     void faceTrack(bool flag);
 
+    void on_actionFudiao_triggered();
+
+    void on_actionHuaijiu_triggered();
+
+    void on_actionSketch_triggered();
+
+    void on_actionCartoon_triggered();
+
 private:
     Ui::design *ui;
     Image img;
