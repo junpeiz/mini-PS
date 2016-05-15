@@ -16,15 +16,13 @@ SOURCES += main.cpp\
     image.cpp \
     design.cpp \
     equal_dialog.cpp \
-    stitch.cpp \
-    facetracking.cpp
+    stitch.cpp
 
 HEADERS  += \
     image.h \
     design.h \
     equal_dialog.h \
-    stitch.h \
-    facetracking.h
+    stitch.h
 
 CONFIG += c++11
 
@@ -54,8 +52,7 @@ LIBS+=F:\programming\qtopencv_out\bin\libopencv_videostab2412d.dll\
 FORMS += \
     design.ui \
     equal_dialog.ui \
-    stitch.ui \
-    facetracking.ui
+    stitch.ui
 
 RESOURCES += \
     imageprocessor.qrc

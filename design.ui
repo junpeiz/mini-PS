@@ -215,17 +215,12 @@
     <addaction name="actionDetectEdge"/>
     <addaction name="actionRedo"/>
     <addaction name="actionImageMatch"/>
-    <addaction name="actionFudiao"/>
-    <addaction name="actionHuaijiu"/>
-    <addaction name="actionSketch"/>
-    <addaction name="actionCartoon"/>
    </widget>
    <widget class="QMenu" name="menuAdvance">
     <property name="title">
      <string>Advance</string>
     </property>
     <addaction name="actionStitch"/>
-    <addaction name="actionFaceTracking"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuProcess"/>
@@ -374,31 +369,6 @@
   <action name="actionImageMatch">
    <property name="text">
     <string>imageMatch</string>
-   </property>
-  </action>
-  <action name="actionFaceTracking">
-   <property name="text">
-    <string>FaceTracking</string>
-   </property>
-  </action>
-  <action name="actionFudiao">
-   <property name="text">
-    <string>浮雕</string>
-   </property>
-  </action>
-  <action name="actionHuaijiu">
-   <property name="text">
-    <string>怀旧</string>
-   </property>
-  </action>
-  <action name="actionSketch">
-   <property name="text">
-    <string>素描</string>
-   </property>
-  </action>
-  <action name="actionCartoon">
-   <property name="text">
-    <string>油画</string>
    </property>
   </action>
  </widget>

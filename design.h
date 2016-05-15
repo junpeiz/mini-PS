@@ -21,7 +21,6 @@
 #include <time.h>
 #include"image.h"
 #include"stitch.h"
-#include"facetracking.h"
 
 namespace Ui {
 class design;
@@ -83,18 +82,6 @@ private slots:
     void on_actionStitch_triggered();
 
     void on_actionImageMatch_triggered();
-
-    void on_actionFaceTracking_triggered();
-
-    void faceTrack(bool flag);
-
-    void on_actionFudiao_triggered();
-
-    void on_actionHuaijiu_triggered();
-
-    void on_actionSketch_triggered();
-
-    void on_actionCartoon_triggered();
 
 private:
     Ui::design *ui;

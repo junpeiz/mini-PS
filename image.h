@@ -36,7 +36,6 @@ public:
     bool erase();
     bool empty();
     void redo();
-    void track();
     bool changeAlphaAndBeta(double alpha,double beta);
     void myBGR2YUV(const Mat image,Mat &result);
     void CountTemperature(const Mat result,Mat &Temperature ,const short phi=180);
@@ -57,7 +56,6 @@ private:
     Mat dstImg;
 
     double generateGaussianNoise();
-    void detectAndDraw(Mat frame, CascadeClassifier cascade, double scale, bool tryflip);
 };
 
 

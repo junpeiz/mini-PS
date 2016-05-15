@@ -165,22 +165,6 @@ void Image::redo()
     storeImg.pop_back();
 }
 
-void Image::track()
-{
-    VideoCapture cap(0);
-    if(!cap.isOpened()) return;
-    Mat frame;
-    CascadeClassifier cascade;
-    bool stop = false;
-    cascade.load("haarcascade_frontalface_alt.xml");
-    while(!stop)
-    {
-        cap >> frame;
-        detectAndDraw(frame,cascade,2,0);
-        if(waitKey(30) >= 0) stop = true;
-    }
-}
-
 //private function
 double Image::generateGaussianNoise()
 {
@@ -203,46 +187,6 @@ double Image::generateGaussianNoise()
 
     return sqrt(rand1) * cos(rand2);
 }
-
-void Image::detectAndDraw(Mat frame, CascadeClassifier cascade, double scale, bool tryflip)
-{
-    vector<Rect> faces;
-    Mat grey;
-    cvtColor(frame,grey,CV_RGB2GRAY);
-    Mat smallImg(cvRound(frame.rows/scale),cvRound(frame.cols/scale),CV_8UC1);
-    cv::resize(grey,smallImg,smallImg.size());
-    equalizeHist(smallImg,smallImg);
-
-    cascade.detectMultiScale(smallImg,faces,1.1,2,0);
-    if(tryflip)
-    {
-        vector<Rect> faces2;
-        flip(smallImg,smallImg,1);
-        cascade.detectMultiScale(smallImg,faces2,1.1,2,0,Size(30,30));
-        for(vector<Rect>::iterator itr = faces2.begin(); itr != faces2.end(); itr++)
-            faces.push_back(Rect(smallImg.cols - itr->x - itr->width, itr->y, itr->width, itr->height));
-    }
-    for(vector<Rect>::const_iterator itr = faces.begin(); itr != faces.end(); itr++)
-    {
-        Point center;
-        Scalar color = CV_RGB(255,255,0);
-        int radius;
-
-        double ratio = (double)itr->width/itr->height;
-        if(0.75 < ratio && ratio < 1.3)
-        {
-            center.x = cvRound((itr->x + itr->width * 0.5) * scale);
-            center.y = cvRound((itr->y + itr->height * 0.5) * scale);
-            radius = cvRound((itr->width + itr->height) * 0.25 * scale);
-            circle(frame,center,radius,color);
-        }
-        else
-            rectangle(frame,cvPoint(cvRound(itr->x * scale),cvRound(itr->y * scale)),cvPoint(cvRound((itr->x + itr->width - 1) * scale), cvRound(itr->y + itr->height - 1) * scale),color);
-
-    }
-    cv::imshow("any key to exit", frame );
-}
-
 bool Image::changeAlphaAndBeta(double alpha,double beta)
 {
     if(img.empty()) return false;
