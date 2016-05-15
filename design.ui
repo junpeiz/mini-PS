@@ -33,6 +33,12 @@
           <height>386</height>
          </rect>
         </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <widget class="QLabel" name="imageLabel">
          <property name="geometry">
           <rect>
@@ -41,6 +47,12 @@
            <width>782</width>
            <height>57</height>
           </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
          <property name="text">
           <string/>
@@ -181,6 +193,7 @@
       <string>addLittleIcon</string>
      </property>
      <addaction name="actionIconAdd"/>
+     <addaction name="actionIconCancel"/>
      <addaction name="actionIconSave"/>
     </widget>
     <widget class="QMenu" name="menuAddBoard">
@@ -201,9 +214,22 @@
     <addaction name="actionCutout"/>
     <addaction name="actionDetectEdge"/>
     <addaction name="actionRedo"/>
+    <addaction name="actionImageMatch"/>
+    <addaction name="actionFudiao"/>
+    <addaction name="actionHuaijiu"/>
+    <addaction name="actionSketch"/>
+    <addaction name="actionCartoon"/>
+   </widget>
+   <widget class="QMenu" name="menuAdvance">
+    <property name="title">
+     <string>Advance</string>
+    </property>
+    <addaction name="actionStitch"/>
+    <addaction name="actionFaceTracking"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuProcess"/>
+   <addaction name="menuAdvance"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -333,6 +359,46 @@
   <action name="actionRedo">
    <property name="text">
     <string>redo</string>
+   </property>
+  </action>
+  <action name="actionIconCancel">
+   <property name="text">
+    <string>Cancel</string>
+   </property>
+  </action>
+  <action name="actionStitch">
+   <property name="text">
+    <string>stitch</string>
+   </property>
+  </action>
+  <action name="actionImageMatch">
+   <property name="text">
+    <string>imageMatch</string>
+   </property>
+  </action>
+  <action name="actionFaceTracking">
+   <property name="text">
+    <string>FaceTracking</string>
+   </property>
+  </action>
+  <action name="actionFudiao">
+   <property name="text">
+    <string>浮雕</string>
+   </property>
+  </action>
+  <action name="actionHuaijiu">
+   <property name="text">
+    <string>怀旧</string>
+   </property>
+  </action>
+  <action name="actionSketch">
+   <property name="text">
+    <string>素描</string>
+   </property>
+  </action>
+  <action name="actionCartoon">
+   <property name="text">
+    <string>油画</string>
    </property>
   </action>
  </widget>
